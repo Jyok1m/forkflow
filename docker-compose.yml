@@ -14,8 +14,24 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    volumes:
+      - forkflow-data:/var/lib/postgresql/data
     networks:
       - forkflow-network
+
+  adminer:
+    image: adminer:5.4.2
+    restart: always
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - 127.0.0.1:8080:8080
+    networks:
+      - forkflow-network
+
+volumes:
+  forkflow-data:
+    name: forkflow-data
 
 networks:
   forkflow-network:

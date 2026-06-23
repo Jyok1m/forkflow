@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  moduleFormat    = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Restaurant {
+  id Int @default(autoincrement()) @id
+  name String
+  line1 String
+  line2 String
+  city String
+  postCode String
+  country String
+  tables Table[]
+  serviceSlots ServiceSlot[]
+}
+
+model Table {
+  id Int @default(autoincrement()) @id
+  number Int
+  seats Int
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+}
+
+enum Period {
+  BREAKFAST
+  BRUNCH
+  LUNCH
+  TEA
+  DINNER
+  ALL_DAY
+}
+
+model ServiceSlot {
+  id Int @default(autoincrement()) @id
+  date DateTime
+  period Period
+  openingTime DateTime @db.Time
+  closingTime DateTime @db.Time
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+  reservations Reservation[]
+  capacity Int
+}
+
+enum Status {
+  PREBOOKED
+  BOOKED
+  COMPLETE
+  CANCELED
+  NO_SHOW
+}
+
+model Reservation {
+  id Int @default(autoincrement()) @id
+  diner Diner @relation(fields: [dinerId], references: [id])
+  dinerId Int
+  serviceSlot ServiceSlot @relation(fields: [serviceSlotId], references: [id])
+  serviceSlotId Int
+  pax Int
+  status Status
+}
+
+model Diner {
+  id Int @default(autoincrement()) @id
+  email String @unique
+  phone String @unique
+  firstName String
+  lastName String
+  reservations Reservation[]
+}

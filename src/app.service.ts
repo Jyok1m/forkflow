@@ -3,6 +3,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World!';
+    return 'Welcome to Forkflow ! For GraphQL, call 911 (lol, no ! Call : POST - http<s>://<ip>:<port>/graphql';
   }
 }

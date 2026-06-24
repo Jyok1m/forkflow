@@ -4,7 +4,6 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { HelloResolver } from './hello.resolver';
 import { RestaurantResolver } from './restaurant/restaurant.resolver';
 import { RestaurantService } from './restaurant/restaurant.service';
 import { PrismaService } from './prisma.service';
@@ -19,12 +18,6 @@ import { PrismaService } from './prisma.service';
     }),
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    HelloResolver,
-    RestaurantResolver,
-    RestaurantService,
-    PrismaService,
-  ],
+  providers: [AppService, RestaurantResolver, RestaurantService, PrismaService],
 })
 export class AppModule {}

@@ -6,12 +6,12 @@ import { ServiceSlot, Prisma } from '../generated/prisma/client';
 export class ServiceSlotService {
   constructor(private prisma: PrismaService) {}
 
-  // Get all tables from DB
+  // Get all from DB
   async findAll(): Promise<ServiceSlot[]> {
     return this.prisma.serviceSlot.findMany();
   }
 
-  // Get all tables from a query
+  // Get all from a query
   async findAllByQuery(
     input: Prisma.ServiceSlotWhereInput,
   ): Promise<ServiceSlot[]> {
@@ -20,7 +20,7 @@ export class ServiceSlotService {
     });
   }
 
-  // Get single table
+  // Get single
   async findOne(
     input: Prisma.ServiceSlotWhereUniqueInput,
   ): Promise<ServiceSlot> {

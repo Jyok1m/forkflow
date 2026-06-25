@@ -7,12 +7,12 @@ export class TableService {
   constructor(private prisma: PrismaService) {}
 
   // Get all tables from DB
-  findAll() {
+  async findAll(): Promise<Table[]> {
     return this.prisma.table.findMany();
   }
 
   // Get all tables from a query
-  async findAllByQuery(input: Prisma.TableWhereInput): Promise<Table[] | []> {
+  async findAllByQuery(input: Prisma.TableWhereInput): Promise<Table[]> {
     return this.prisma.table.findMany({
       where: input,
     });
@@ -20,7 +20,7 @@ export class TableService {
 
   // Get single table
   async findOne(input: Prisma.TableWhereUniqueInput): Promise<Table> {
-    return await this.prisma.table.findUniqueOrThrow({
+    return this.prisma.table.findUniqueOrThrow({
       where: input,
     });
   }

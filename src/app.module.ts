@@ -4,17 +4,12 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { RestaurantResolver } from './restaurant/restaurant.resolver';
-import { RestaurantService } from './restaurant/restaurant.service';
-import { TableResolver } from './table/table.resolver';
-import { TableService } from './table/table.service';
-import { ServiceSlotResolver } from './service-slot/service-slot.resolver';
-import { ServiceSlotService } from './service-slot/service-slot.service';
-import { PrismaService } from './prisma.service';
-import { DinerService } from './diner/diner.service';
-import { DinerResolver } from './diner/diner.resolver';
-import { ReservationService } from './reservation/reservation.service';
-import { ReservationResolver } from './reservation/reservation.resolver';
+import { PrismaModule } from './prisma/prisma.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
+import { TableModule } from './table/table.module';
+import { DinerModule } from './diner/diner.module';
+import { ReservationModule } from './reservation/reservation.module';
+import { ServiceSlotModule } from './service-slot/service-slot.module';
 
 @Module({
   imports: [
@@ -24,21 +19,14 @@ import { ReservationResolver } from './reservation/reservation.resolver';
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
+    PrismaModule,
+    RestaurantModule,
+    TableModule,
+    DinerModule,
+    ReservationModule,
+    ServiceSlotModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    RestaurantResolver,
-    RestaurantService,
-    TableResolver,
-    TableService,
-    ServiceSlotResolver,
-    ServiceSlotService,
-    PrismaService,
-    DinerService,
-    DinerResolver,
-    ReservationService,
-    ReservationResolver,
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

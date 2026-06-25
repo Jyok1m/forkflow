@@ -9,13 +9,13 @@ import {
 import { ServiceSlot } from './service-slot.model';
 import { ServiceSlotService } from './service-slot.service';
 import { Reservation } from '../reservation/reservation.model';
-import { ReservationService } from '../reservation/reservation.service';
+import { ReservationsByServiceSlotLoader } from './reservations-by-service-slot.loader';
 
 @Resolver(() => ServiceSlot)
 export class ServiceSlotResolver {
   constructor(
     private svc: ServiceSlotService,
-    private reservationSvc: ReservationService,
+    private reservationsLoader: ReservationsByServiceSlotLoader,
   ) {}
 
   @Query(() => [ServiceSlot])
@@ -28,10 +28,9 @@ export class ServiceSlotResolver {
     return this.svc.findOne({ id });
   }
 
+  // Bulk load for faster results
   @ResolveField('reservations', () => [Reservation])
   async reservations(@Parent() serviceSlot: ServiceSlot) {
-    return this.reservationSvc.findAllByQuery({
-      serviceSlotId: serviceSlot.id,
-    });
+    return this.reservationsLoader.loader.load(serviceSlot.id);
   }
 }

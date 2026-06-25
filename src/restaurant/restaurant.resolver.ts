@@ -23,7 +23,7 @@ export class RestaurantResolver {
 
   // Get all restaurants from DB
   @Query(() => [Restaurant])
-  restaurants() {
+  async restaurants() {
     return this.service.findAll();
   }
 
@@ -36,14 +36,14 @@ export class RestaurantResolver {
   // Populate service slots by restaurant
   @ResolveField('tables', () => [Table])
   async tables(@Parent() restaurant: Restaurant) {
-    const { id } = restaurant;
-    return this.tableService.findAllByQuery({ restaurantId: id });
+    return this.tableService.findAllByQuery({ restaurantId: restaurant.id });
   }
 
   // Populate service slots by restaurant
   @ResolveField('serviceSlots', () => [ServiceSlot])
   async serviceSlots(@Parent() restaurant: Restaurant) {
-    const { id } = restaurant;
-    return this.serviceSlotService.findAllByQuery({ restaurantId: id });
+    return this.serviceSlotService.findAllByQuery({
+      restaurantId: restaurant.id,
+    });
   }
 }

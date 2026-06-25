@@ -6,6 +6,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RestaurantResolver } from './restaurant/restaurant.resolver';
 import { RestaurantService } from './restaurant/restaurant.service';
+import { TableResolver } from './table/table.resolver';
+import { TableService } from './table/table.service';
+import { ServiceSlotResolver } from './service-slot/service-slot.resolver';
+import { ServiceSlotService } from './service-slot/service-slot.service';
 import { PrismaService } from './prisma.service';
 
 @Module({
@@ -18,6 +22,15 @@ import { PrismaService } from './prisma.service';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, RestaurantResolver, RestaurantService, PrismaService],
+  providers: [
+    AppService,
+    RestaurantResolver,
+    RestaurantService,
+    TableResolver,
+    TableService,
+    ServiceSlotResolver,
+    ServiceSlotService,
+    PrismaService,
+  ],
 })
 export class AppModule {}

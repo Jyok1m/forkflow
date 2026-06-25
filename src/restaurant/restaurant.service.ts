@@ -7,7 +7,7 @@ export class RestaurantService {
   constructor(private prisma: PrismaService) {}
 
   // Get all restaurants from DB
-  async findAll(): Promise<Restaurant[] | []> {
+  async findAll(): Promise<Restaurant[]> {
     return this.prisma.restaurant.findMany();
   }
 

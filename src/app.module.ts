@@ -11,6 +11,10 @@ import { TableService } from './table/table.service';
 import { ServiceSlotResolver } from './service-slot/service-slot.resolver';
 import { ServiceSlotService } from './service-slot/service-slot.service';
 import { PrismaService } from './prisma.service';
+import { DinerService } from './diner/diner.service';
+import { DinerResolver } from './diner/diner.resolver';
+import { ReservationService } from './reservation/reservation.service';
+import { ReservationResolver } from './reservation/reservation.resolver';
 
 @Module({
   imports: [
@@ -31,6 +35,10 @@ import { PrismaService } from './prisma.service';
     ServiceSlotResolver,
     ServiceSlotService,
     PrismaService,
+    DinerService,
+    DinerResolver,
+    ReservationService,
+    ReservationResolver,
   ],
 })
 export class AppModule {}

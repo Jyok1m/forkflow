@@ -10,6 +10,8 @@ import { DinerService } from './diner.service';
 import { Diner } from './diner.model';
 import { Reservation } from '../reservation/reservation.model';
 import { ReservationService } from '../reservation/reservation.service';
+import { Status } from '../generated/prisma/enums';
+import { BadRequestException } from '@nestjs/common';
 
 @Resolver(() => Diner)
 export class DinerResolver {
@@ -23,13 +25,27 @@ export class DinerResolver {
     return this.svc.findAll();
   }
 
-  @Query(() => Diner)
-  async diner(@Args('id', { type: () => Int }) id: number) {
-    return this.svc.findOne({ id });
+  // Query 2 in 1 for diner fetching by id and email
+  @Query(() => Diner, { nullable: true })
+  async diner(
+    @Args('id', { type: () => Int, nullable: true }) id?: number,
+    @Args('email', { type: () => String, nullable: true }) email?: string,
+  ) {
+    if (!id && !email) {
+      throw new BadRequestException('Provide either id or email');
+    }
+    return this.svc.findOne(id ? { id } : { email });
   }
 
   @ResolveField('reservations', () => [Reservation])
-  async reservations(@Parent() diner: Diner) {
-    return this.reservationSvc.findAllByQuery({ dinerId: diner.id });
+  async reservations(
+    @Parent() diner: Diner,
+    @Args('status', { type: () => String, nullable: true })
+    status?: Status,
+  ) {
+    return this.reservationSvc.findAllByQuery({
+      dinerId: diner.id,
+      ...(status ? { status } : {}),
+    });
   }
 }

@@ -2,31 +2,29 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Reservation } from '../generated/prisma/client';
 import { Prisma } from '../generated/prisma/client';
+import { CreateReservationInput } from './dto/create-reservervation.input';
 
 @Injectable()
 export class ReservationService {
   constructor(private prisma: PrismaService) {}
 
-  // Get all reservations from DB
-  async findAll(): Promise<Reservation[]> {
-    return this.prisma.reservation.findMany();
+  /* ---------------------------------------------------------------- */
+  /*                              Creates                             */
+  /* ---------------------------------------------------------------- */
+
+  async create(data: CreateReservationInput) {
+    return this.prisma.reservation.create({ data });
   }
 
-  // Get all reservations from a query
-  async findAllByQuery(
-    input: Prisma.ReservationWhereInput,
-  ): Promise<Reservation[]> {
-    return this.prisma.reservation.findMany({
-      where: input,
-    });
+  /* ---------------------------------------------------------------- */
+  /*                               Reads                              */
+  /* ---------------------------------------------------------------- */
+
+  async findOne(where: Prisma.ReservationWhereInput): Promise<Reservation> {
+    return this.prisma.reservation.findFirstOrThrow({ where });
   }
 
-  // Get single reservation
-  async findOne(
-    input: Prisma.ReservationWhereUniqueInput,
-  ): Promise<Reservation> {
-    return this.prisma.reservation.findUniqueOrThrow({
-      where: input,
-    });
+  async findMany(where?: Prisma.ReservationWhereInput): Promise<Reservation[]> {
+    return this.prisma.reservation.findMany({ where });
   }
 }

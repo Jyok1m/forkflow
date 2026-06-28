@@ -11,7 +11,7 @@ import { DinerService } from './diner.service';
 import { Diner } from './diner.model';
 import { BadRequestException } from '@nestjs/common';
 import { CreateDinerInput } from './dto/create-diner.input';
-import type { DinerWhereInput } from '../generated/prisma/models';
+import { DinerWhereInput } from './dto/diner-where.input';
 import { ReservationsByDinerLoader } from './loaders/reservations-by-diner.loader';
 import { Reservation } from '../reservation/reservation.model';
 

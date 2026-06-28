@@ -1,12 +1,15 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsEnum, IsInt } from 'class-validator';
+import { IsEnum, IsInt, ValidateNested } from 'class-validator';
 import { Status } from '../../common/status.enum';
+import { CreateDinerInput } from '../../diner/dto/create-diner.input';
+import { Type } from 'class-transformer';
 
 @InputType()
 export class CreateReservationInput {
-  @Field(() => Int)
-  @IsInt()
-  dinerId!: number;
+  @Field(() => CreateDinerInput)
+  @ValidateNested()
+  @Type(() => CreateDinerInput)
+  diner!: CreateDinerInput;
 
   @Field(() => Int)
   @IsInt()
@@ -16,7 +19,7 @@ export class CreateReservationInput {
   @IsInt()
   pax!: number;
 
-  @Field()
+  @Field(() => Status)
   @IsEnum(Status)
   status!: Status;
 }

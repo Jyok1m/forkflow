@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Reservation } from '../generated/prisma/client';
+import { Diner, Reservation } from '../generated/prisma/client';
 import { Prisma } from '../generated/prisma/client';
 import { CreateReservationInput } from './dto/create-reservervation.input';
 
@@ -13,7 +13,38 @@ export class ReservationService {
   /* ---------------------------------------------------------------- */
 
   async create(data: CreateReservationInput) {
-    return this.prisma.reservation.create({ data });
+    const existing = await this.prisma.reservation.findFirst({
+      where: {
+        serviceSlotId: data.serviceSlotId,
+        diner: { email: data.diner.email },
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException('Reservation already exists');
+    }
+
+    return this.prisma.reservation.create({
+      data: {
+        pax: data.pax,
+        serviceSlot: { connect: { id: data.serviceSlotId } },
+        status: data.status,
+        diner: {
+          connectOrCreate: {
+            where: { email: data.diner.email },
+            create: {
+              firstName: data.diner.firstName,
+              lastName: data.diner.lastName,
+              email: data.diner.email,
+              phone: data.diner.phone,
+            },
+          },
+        },
+      },
+      include: {
+        serviceSlot: { include: { restaurant: true } },
+      },
+    });
   }
 
   /* ---------------------------------------------------------------- */

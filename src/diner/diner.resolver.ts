@@ -36,14 +36,11 @@ export class DinerResolver {
   /* ---------------------------------------------------------------- */
 
   @Query(() => Diner)
-  async diner(
-    @Args('id', { type: () => Int, nullable: true }) id?: number,
-    @Args('email', { nullable: true }) email?: string,
-  ) {
-    if (!id && !email) {
-      throw new BadRequestException('Provide either id or email');
+  async diner(@Args('where') where: DinerWhereInput) {
+    if (!where) {
+      throw new BadRequestException('Provide either id, email or lastname');
     }
-    return this.dinerService.findOne(id ? { id } : { email });
+    return this.dinerService.findOne(where);
   }
 
   @Query(() => [Diner])

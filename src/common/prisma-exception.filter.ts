@@ -4,8 +4,7 @@ import { Prisma } from '../generated/prisma/client';
 @Catch(Prisma.PrismaClientKnownRequestError)
 export class PrismaExceptionFilter {
   catch(err: Prisma.PrismaClientKnownRequestError) {
-    if (err.code === 'P2002')
-      throw new ConflictException('Value already exists');
+    if (err.code === 'P2002') throw new ConflictException('Already exists');
     if (err.code === 'P2025') throw new NotFoundException('Resource not found');
     throw err; // les autres codes restent des erreurs serveur
   }

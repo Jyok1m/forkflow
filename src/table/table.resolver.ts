@@ -1,38 +1,41 @@
-import {
-  Args,
-  Int,
-  Parent,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { TableService } from './table.service';
 import { Table } from './table.model';
-import { Restaurant } from '../restaurant/restaurant.model';
-import { RestaurantService } from '../restaurant/restaurant.service';
+import { CreateTableInput } from './dto/create-table.input';
+import { BadRequestException } from '@nestjs/common';
+import type { TableWhereInput } from '../generated/prisma/models';
 
 @Resolver(() => Table)
 export class TableResolver {
-  constructor(
-    private service: TableService,
-    private restaurantService: RestaurantService,
-  ) {}
+  constructor(private tableService: TableService) {}
 
-  // Get all tables
-  @Query(() => [Table])
-  async tables() {
-    return this.service.findAll();
+  /* ---------------------------------------------------------------- */
+  /*                              Creates                             */
+  /* ---------------------------------------------------------------- */
+
+  @Mutation(() => Table)
+  async createTable(@Args('data') data: CreateTableInput) {
+    return this.tableService.create(data);
   }
 
-  // Get single table by ID
+  /* ---------------------------------------------------------------- */
+  /*                               Reads                              */
+  /* ---------------------------------------------------------------- */
+
   @Query(() => Table)
   async table(@Args('id', { type: () => Int }) id: number) {
-    return this.service.findOne({ id });
+    return this.tableService.findOne({ id });
   }
 
-  // Populate restaurants by table
-  @ResolveField('restaurant', () => Restaurant)
-  async restaurants(@Parent() table: Table) {
-    return this.restaurantService.findOne({ id: table.restaurantId });
+  // Utilisation de TableWhereInput comme type pour dire que l'entrée peut être n'importe quelle query Prisma Where
+  @Query(() => [Table])
+  async tables(@Args('where', { nullable: true }) where?: TableWhereInput) {
+    if (where && !where.id && !where.seats) {
+      throw new BadRequestException(
+        'Provide either id or seats if using where query',
+      );
+    }
+
+    return this.tableService.findMany(where);
   }
 }

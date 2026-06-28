@@ -9,31 +9,31 @@ import {
 import { ServiceSlot } from './service-slot.model';
 import { ServiceSlotService } from './service-slot.service';
 import { Reservation } from '../reservation/reservation.model';
-import { ReservationsByServiceSlotLoader } from './reservations-by-service-slot.loader';
+import { ReservationsByServiceSlotLoader } from './loaders/reservations-by-service-slot.loader';
 import { Restaurant } from '../restaurant/restaurant.model';
 import { RestaurantService } from '../restaurant/restaurant.service';
 
 @Resolver(() => ServiceSlot)
 export class ServiceSlotResolver {
   constructor(
-    private svc: ServiceSlotService,
-    private restaurantSvc: RestaurantService,
+    private serviceSlotService: ServiceSlotService,
+    private restaurantService: RestaurantService,
     private reservationsLoader: ReservationsByServiceSlotLoader,
   ) {}
 
   @Query(() => [ServiceSlot])
   async serviceSlots() {
-    return this.svc.findAll();
+    return this.serviceSlotService.findAll();
   }
 
   @Query(() => ServiceSlot)
   async serviceSlot(@Args('id', { type: () => Int }) id: number) {
-    return this.svc.findOne({ id });
+    return this.serviceSlotService.findOne({ id });
   }
 
   @ResolveField('restaurant', () => Restaurant)
   async restaurant(@Parent() serviceSlot: ServiceSlot) {
-    return this.restaurantSvc.findOne({ id: serviceSlot.restaurantId });
+    return this.restaurantService.findOne({ id: serviceSlot.restaurantId });
   }
 
   // Bulk load for faster results

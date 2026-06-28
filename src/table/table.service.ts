@@ -1,27 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, Table } from '../generated/prisma/client';
+import { CreateTableInput } from './dto/create-table.input';
 
 @Injectable()
 export class TableService {
   constructor(private prisma: PrismaService) {}
 
-  // Get all tables from DB
-  async findAll(): Promise<Table[]> {
-    return this.prisma.table.findMany();
+  /* ---------------------------------------------------------------- */
+  /*                              Creates                             */
+  /* ---------------------------------------------------------------- */
+
+  async create(data: CreateTableInput) {
+    return this.prisma.table.create({ data });
   }
 
-  // Get all tables from a query
-  async findAllByQuery(input: Prisma.TableWhereInput): Promise<Table[]> {
-    return this.prisma.table.findMany({
-      where: input,
-    });
+  /* ---------------------------------------------------------------- */
+  /*                               Reads                              */
+  /* ---------------------------------------------------------------- */
+
+  async findOne(where: Prisma.TableWhereInput): Promise<Table> {
+    return this.prisma.table.findFirstOrThrow({ where });
   }
 
-  // Get single table
-  async findOne(input: Prisma.TableWhereUniqueInput): Promise<Table> {
-    return this.prisma.table.findUniqueOrThrow({
-      where: input,
-    });
+  async findMany(where?: Prisma.TableWhereInput): Promise<Table[]> {
+    return this.prisma.table.findMany({ where });
   }
 }

@@ -1,6 +1,7 @@
 import {
   Args,
   Int,
+  Mutation,
   Parent,
   Query,
   ResolveField,
@@ -9,41 +10,70 @@ import {
 import { Restaurant } from './restaurant.model';
 import { RestaurantService } from './restaurant.service';
 import { ServiceSlot } from '../service-slot/service-slot.model';
-import { ServiceSlotService } from '../service-slot/service-slot.service';
-import { TableService } from '../table/table.service';
 import { Table } from '../table/table.model';
+import { CreateRestaurantInput } from './dto/create-restaurant.input';
+import type { RestaurantWhereInput } from '../generated/prisma/models';
+import { BadRequestException } from '@nestjs/common';
+import { TablesByRestaurantLoader } from './loaders/tables-by-restaurant.loader';
+import { ServiceSlotsByRestaurantLoader } from './loaders/service-slots-by-restaurant.loader';
 
 @Resolver(() => Restaurant)
 export class RestaurantResolver {
   constructor(
-    private svc: RestaurantService,
-    private tableSvc: TableService,
-    private serviceSlotSvc: ServiceSlotService,
+    private restaurantService: RestaurantService,
+    private tablesByRestaurant: TablesByRestaurantLoader,
+    private serviceSlotsByRestaurant: ServiceSlotsByRestaurantLoader,
   ) {}
 
-  // Get all restaurants from DB
-  @Query(() => [Restaurant])
-  async restaurants() {
-    return this.svc.findAll();
+  /* ---------------------------------------------------------------- */
+  /*                              Creates                             */
+  /* ---------------------------------------------------------------- */
+
+  @Mutation(() => Restaurant)
+  async createRestaurant(@Args('data') data: CreateRestaurantInput) {
+    return this.restaurantService.create(data);
   }
 
-  // Get single restaurant by ID
+  /* ---------------------------------------------------------------- */
+  /*                               Reads                              */
+  /* ---------------------------------------------------------------- */
+
+  // Only one (find first or throw)
   @Query(() => Restaurant)
-  async restaurant(@Args('id', { type: () => Int }) id: number) {
-    return this.svc.findOne({ id });
+  async restaurant(
+    @Args('id', { type: () => Int, nullable: true }) id?: number,
+    @Args('name', { type: () => String, nullable: true }) name?: string,
+  ) {
+    if (!id && !name) {
+      throw new BadRequestException('Provide either id or name');
+    }
+
+    return this.restaurantService.findOne(id ? { id } : { name });
   }
 
-  // Populate tables by restaurant
+  // All
+  @Query(() => [Restaurant])
+  async restaurants(
+    @Args('where', { nullable: true }) where?: RestaurantWhereInput,
+  ) {
+    return this.restaurantService.findMany(where);
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*                          Resolved fields                         */
+  /* ---------------------------------------------------------------- */
+
+  // Tables by restaurant
   @ResolveField('tables', () => [Table])
   async tables(@Parent() restaurant: Restaurant) {
-    return this.tableSvc.findAllByQuery({ restaurantId: restaurant.id });
+    const { id } = restaurant;
+    return this.tablesByRestaurant.loader.load(id);
   }
 
-  // Populate service slots by restaurant
+  // Service slots by restaurant
   @ResolveField('serviceSlots', () => [ServiceSlot])
   async serviceSlots(@Parent() restaurant: Restaurant) {
-    return this.serviceSlotSvc.findAllByQuery({
-      restaurantId: restaurant.id,
-    });
+    const { id } = restaurant;
+    return this.serviceSlotsByRestaurant.loader.load(id);
   }
 }

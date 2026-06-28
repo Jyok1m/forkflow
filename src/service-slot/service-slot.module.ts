@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { ServiceSlotService } from './service-slot.service';
 import { ServiceSlotResolver } from './service-slot.resolver';
-import { ReservationsByServiceSlotLoader } from './reservations-by-service-slot.loader';
+import { ReservationsByServiceSlotLoader } from './loaders/reservations-by-service-slot.loader';
 import { RestaurantModule } from '../restaurant/restaurant.module';
 
 @Module({
@@ -9,7 +9,7 @@ import { RestaurantModule } from '../restaurant/restaurant.module';
   providers: [
     ServiceSlotService,
     ServiceSlotResolver,
-    ReservationsByServiceSlotLoader, // ← la ligne manquante
+    ReservationsByServiceSlotLoader,
   ],
   exports: [ServiceSlotService],
 })

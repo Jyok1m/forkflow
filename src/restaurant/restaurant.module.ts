@@ -1,12 +1,16 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { RestaurantResolver } from './restaurant.resolver';
 import { RestaurantService } from './restaurant.service';
-import { TableModule } from '../table/table.module';
-import { ServiceSlotModule } from '../service-slot/service-slot.module';
+import { TablesByRestaurantLoader } from './loaders/tables-by-restaurant.loader';
+import { ServiceSlotsByRestaurantLoader } from './loaders/service-slots-by-restaurant.loader';
 
 @Module({
-  imports: [forwardRef(() => TableModule), ServiceSlotModule],
-  providers: [RestaurantResolver, RestaurantService],
+  providers: [
+    RestaurantResolver,
+    RestaurantService,
+    TablesByRestaurantLoader,
+    ServiceSlotsByRestaurantLoader,
+  ],
   exports: [RestaurantService],
 })
 export class RestaurantModule {}

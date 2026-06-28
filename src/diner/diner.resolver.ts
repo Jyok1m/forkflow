@@ -5,6 +5,7 @@ import {
   Int,
   Parent,
   ResolveField,
+  Mutation,
 } from '@nestjs/graphql';
 import { DinerService } from './diner.service';
 import { Diner } from './diner.model';
@@ -12,6 +13,7 @@ import { Reservation } from '../reservation/reservation.model';
 import { ReservationService } from '../reservation/reservation.service';
 import { Status } from '../generated/prisma/enums';
 import { BadRequestException } from '@nestjs/common';
+import { CreateDinerInput } from './dto/create-diner.input';
 
 @Resolver(() => Diner)
 export class DinerResolver {
@@ -19,6 +21,12 @@ export class DinerResolver {
     private svc: DinerService,
     private reservationSvc: ReservationService,
   ) {}
+
+  // Create new diner
+  @Mutation(() => Diner)
+  async createDiner(@Args('data') data: CreateDinerInput) {
+    return this.svc.create(data);
+  }
 
   @Query(() => [Diner])
   async diners() {

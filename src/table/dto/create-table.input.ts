@@ -1,5 +1,5 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsInt, IsPositive } from 'class-validator';
+import { Field, ID, InputType, Int } from '@nestjs/graphql';
+import { IsInt, IsPositive, IsUUID } from 'class-validator';
 
 @InputType()
 export class CreateTableInput {
@@ -13,8 +13,7 @@ export class CreateTableInput {
   @IsPositive()
   seats!: number;
 
-  @Field(() => Int)
-  @IsInt()
-  @IsPositive()
-  restaurantId!: number;
+  @Field(() => ID)
+  @IsUUID()
+  restaurantPublicId!: string;
 }

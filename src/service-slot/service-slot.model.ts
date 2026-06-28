@@ -1,9 +1,10 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class ServiceSlot {
-  @Field(() => Int) id!: number;
-  @Field(() => Int) restaurantId!: number;
+  id!: number; // internal PK, not exposed
+  restaurantId!: number; // internal FK, used by the restaurant loader
+  @Field(() => ID) publicId!: string;
   @Field(() => String) date!: string;
   @Field(() => String) period!: string;
   @Field(() => String) openingTime!: string;

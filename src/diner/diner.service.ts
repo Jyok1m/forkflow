@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Diner, Prisma } from '../generated/prisma/client';
 import { CreateDinerInput } from './dto/create-diner.input';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class DinerService {
@@ -12,7 +13,14 @@ export class DinerService {
   /* ---------------------------------------------------------------- */
 
   async create(data: CreateDinerInput) {
-    return this.prisma.diner.create({ data });
+    const { password, ...rest } = data;
+    return this.prisma.diner.create({
+      data: {
+        ...rest,
+        // guest vs registered
+        passwordHash: password ? await argon2.hash(password) : null,
+      },
+    });
   }
 
   /* ---------------------------------------------------------------- */

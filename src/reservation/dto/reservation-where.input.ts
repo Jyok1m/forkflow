@@ -1,20 +1,20 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsEnum, IsInt, IsOptional } from 'class-validator';
+import { Field, ID, InputType } from '@nestjs/graphql';
+import { IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { Status } from '../../common/status.enum';
 
 @InputType()
 export class ReservationWhereInput {
-  @Field(() => Int)
+  @Field(() => ID, { nullable: true })
   @IsOptional()
-  @IsInt()
-  dinerId?: number;
+  @IsUUID()
+  dinerPublicId?: string;
 
-  @Field(() => Int)
+  @Field(() => ID, { nullable: true })
   @IsOptional()
-  @IsInt()
-  serviceSlotId?: number;
+  @IsUUID()
+  serviceSlotPublicId?: string;
 
-  @Field(() => Status)
+  @Field(() => Status, { nullable: true })
   @IsOptional()
   @IsEnum(Status)
   status?: Status;

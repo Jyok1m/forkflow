@@ -38,7 +38,9 @@ export class DinerResolver {
   @Query(() => Diner)
   async diner(@Args('where') where: DinerWhereInput) {
     if (!where) {
-      throw new BadRequestException('Provide either id, email or lastname');
+      throw new BadRequestException(
+        'Provide either publicId, email or lastName',
+      );
     }
     return this.dinerService.findOne(where);
   }

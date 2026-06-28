@@ -1,18 +1,18 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsEnum, IsInt, IsOptional } from 'class-validator';
+import { Field, ID, InputType } from '@nestjs/graphql';
+import { IsEnum, IsOptional, IsUUID } from 'class-validator';
 import { Period } from '../../common/period.enum';
 
 @InputType()
 export class ServiceSlotWhereInput {
-  @Field(() => Int, { nullable: true })
+  @Field(() => ID, { nullable: true })
   @IsOptional()
-  @IsInt()
-  id?: number;
+  @IsUUID()
+  publicId?: string;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => ID, { nullable: true })
   @IsOptional()
-  @IsInt()
-  restaurantId?: number;
+  @IsUUID()
+  restaurantPublicId?: string;
 
   @Field(() => Period, { nullable: true })
   @IsOptional()

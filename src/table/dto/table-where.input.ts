@@ -1,13 +1,12 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsInt, IsOptional, IsPositive } from 'class-validator';
+import { Field, ID, InputType, Int } from '@nestjs/graphql';
+import { IsInt, IsOptional, IsPositive, IsUUID } from 'class-validator';
 
 @InputType()
 export class TableWhereInput {
-  @Field(() => Int, { nullable: true })
+  @Field(() => ID, { nullable: true })
   @IsOptional()
-  @IsInt()
-  @IsPositive()
-  id?: number;
+  @IsUUID()
+  publicId?: string;
 
   @Field(() => Int, { nullable: true })
   @IsOptional()
@@ -15,9 +14,8 @@ export class TableWhereInput {
   @IsPositive()
   seats?: number;
 
-  @Field(() => Int, { nullable: true })
+  @Field(() => ID, { nullable: true })
   @IsOptional()
-  @IsInt()
-  @IsPositive()
-  restaurantId?: number;
+  @IsUUID()
+  restaurantPublicId?: string;
 }

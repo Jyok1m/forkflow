@@ -1,6 +1,6 @@
 import {
   Args,
-  Int,
+  ID,
   Mutation,
   Parent,
   Query,
@@ -38,8 +38,10 @@ export class ServiceSlotResolver {
   /* ---------------------------------------------------------------- */
 
   @Query(() => ServiceSlot)
-  async serviceSlotByID(@Args('id', { type: () => Int }) id: number) {
-    return this.serviceSlotService.findOne({ id });
+  async serviceSlotByID(
+    @Args('publicId', { type: () => ID }) publicId: string,
+  ) {
+    return this.serviceSlotService.findOne({ publicId });
   }
 
   @Query(() => [ServiceSlot])

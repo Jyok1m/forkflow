@@ -3,6 +3,7 @@ import { PrismaClient, Prisma } from '../src/generated/prisma/client';
 import { Period, Status } from '../src/generated/prisma/enums';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { fakerFR as faker } from '@faker-js/faker';
+import * as argon2 from 'argon2';
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
@@ -25,13 +26,34 @@ async function main() {
   await prisma.reservation.deleteMany();
   await prisma.serviceSlot.deleteMany();
   await prisma.table.deleteMany();
-  await prisma.diner.deleteMany();
   await prisma.restaurant.deleteMany();
+  await prisma.diner.deleteMany();
 
-  const RESTAURANT_COUNT = 30;
-  const DINER_COUNT = 200;
+  const RESTAURANT_COUNT = 300;
+  const DINER_COUNT = 2000;
 
-  // ─── Restaurants (tables + créneaux) ───────────────────────────────
+  const testHash = await argon2.hash('password123');
+
+  // ─── Admins (diners avec compte, gérant les restaurants) ───────────
+  // un admin par restaurant (ou un pool partagé si un admin gère plusieurs)
+  const admins = await Promise.all(
+    Array.from({ length: RESTAURANT_COUNT }, () => {
+      const firstName = faker.person.firstName();
+      const lastName = faker.person.lastName();
+      return prisma.diner.create({
+        data: {
+          firstName,
+          lastName,
+          email: faker.internet.email({ firstName, lastName }).toLowerCase(),
+          phone: faker.phone.number({ style: 'international' }),
+          passwordHash: testHash, // les admins ont toujours un compte
+        },
+      });
+    }),
+  );
+  console.log(`✅ ${admins.length} admins créés`);
+
+  // ─── Restaurants (tables + créneaux + admin) ───────────────────────
   for (let i = 0; i < RESTAURANT_COUNT; i++) {
     const tableCount = randInt(4, 12);
     const tables = Array.from({ length: tableCount }, (_, idx) => ({
@@ -69,10 +91,11 @@ async function main() {
       data: {
         name: `${pick(['Le', 'La', 'Chez', 'Bistrot', 'Maison'])} ${faker.person.lastName()}`,
         line1: `${randInt(1, 200)} ${faker.location.street()}`,
-        line2: faker.datatype.boolean(0.3) ? `${randInt(1, 5)}e étage` : '',
+        line2: faker.datatype.boolean(0.3) ? `${randInt(1, 5)}e étage` : null,
         city: faker.location.city(),
         postCode: faker.location.zipCode('#####'),
         country: 'France',
+        admin: { connect: { id: admins[i].id } }, // un admin distinct par resto
         tables: { create: tables },
         serviceSlots: { create: serviceSlots },
       },
@@ -80,7 +103,7 @@ async function main() {
   }
   console.log(`✅ ${RESTAURANT_COUNT} restaurants créés`);
 
-  // ─── Convives ──────────────────────────────────────────────────────
+  // ─── Convives ordinaires (le reste) ────────────────────────────────
   await prisma.diner.createMany({
     data: Array.from({ length: DINER_COUNT }, () => {
       const firstName = faker.person.firstName();
@@ -90,6 +113,7 @@ async function main() {
         lastName,
         email: faker.internet.email({ firstName, lastName }).toLowerCase(),
         phone: faker.phone.number({ style: 'international' }),
+        passwordHash: faker.datatype.boolean(0.3) ? testHash : null,
       };
     }),
     skipDuplicates: true,
@@ -107,12 +131,16 @@ async function main() {
     const fillRate = faker.number.float({ min: 0.4, max: 0.9 });
     let seatsLeft = Math.floor(slot.capacity * fillRate);
 
-    while (seatsLeft >= 2) {
+    // diners distincts pour CE slot, mélangés
+    const shuffledDiners = faker.helpers.shuffle(allDiners);
+    let dinerIdx = 0;
+
+    while (seatsLeft >= 2 && dinerIdx < shuffledDiners.length) {
       const pax = Math.min(randInt(1, 6), seatsLeft);
       seatsLeft -= pax;
       reservations.push({
         serviceSlotId: slot.id,
-        dinerId: pick(allDiners).id,
+        dinerId: shuffledDiners[dinerIdx].id, // diner unique pour ce slot
         pax,
         status: pick([
           Status.PREBOOKED,
@@ -122,6 +150,7 @@ async function main() {
           Status.NO_SHOW,
         ]),
       });
+      dinerIdx++;
     }
   }
   await prisma.reservation.createMany({ data: reservations });

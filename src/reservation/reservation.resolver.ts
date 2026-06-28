@@ -1,6 +1,6 @@
 import {
   Args,
-  Int,
+  ID,
   Mutation,
   Parent,
   Query,
@@ -38,8 +38,10 @@ export class ReservationResolver {
   /* ---------------------------------------------------------------- */
 
   @Query(() => Reservation)
-  async reservationById(@Args('id', { type: () => Int }) id: number) {
-    return this.reservationService.findOne({ id });
+  async reservationById(
+    @Args('publicId', { type: () => ID }) publicId: string,
+  ) {
+    return this.reservationService.findOne({ publicId });
   }
 
   @Query(() => [Reservation])

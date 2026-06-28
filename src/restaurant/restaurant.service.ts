@@ -12,7 +12,13 @@ export class RestaurantService {
   /* ---------------------------------------------------------------- */
 
   async create(data: CreateRestaurantInput) {
-    return this.prisma.restaurant.create({ data });
+    const { adminPublicId, ...rest } = data;
+    return this.prisma.restaurant.create({
+      data: {
+        ...rest,
+        admin: { connect: { publicId: adminPublicId } },
+      },
+    });
   }
 
   /* ---------------------------------------------------------------- */

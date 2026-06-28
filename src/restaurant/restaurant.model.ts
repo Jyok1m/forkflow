@@ -1,8 +1,9 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class Restaurant {
-  @Field(() => Int) id!: number;
+  id!: number; // internal PK, not exposed (used by loaders)
+  @Field(() => ID) publicId!: string;
   @Field() name!: string;
   @Field() line1!: string;
   @Field({ nullable: true }) line2?: string;

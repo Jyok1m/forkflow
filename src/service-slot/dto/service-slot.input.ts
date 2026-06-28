@@ -1,5 +1,5 @@
-import { Field, InputType, Int, GraphQLISODateTime } from '@nestjs/graphql';
-import { IsDate, IsEnum, IsInt, IsPositive, Matches } from 'class-validator';
+import { Field, ID, InputType, Int, GraphQLISODateTime } from '@nestjs/graphql';
+import { IsDate, IsEnum, IsInt, IsPositive, IsUUID, Matches } from 'class-validator';
 import { Period } from '../../common/period.enum';
 
 @InputType()
@@ -29,8 +29,7 @@ export class ServiceSlotInput {
   @IsPositive()
   capacity!: number;
 
-  @Field(() => Int)
-  @IsInt()
-  @IsPositive()
-  restaurantId!: number;
+  @Field(() => ID)
+  @IsUUID()
+  restaurantPublicId!: string;
 }

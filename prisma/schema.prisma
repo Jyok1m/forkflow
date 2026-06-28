@@ -15,6 +15,7 @@ datasource db {
 
 model Restaurant {
   id Int @default(autoincrement()) @id
+  publicId String @unique @default(uuid(7))
   name String
   line1 String
   line2 String?
@@ -23,10 +24,13 @@ model Restaurant {
   country String
   tables Table[]
   serviceSlots ServiceSlot[]
+  admin Diner @relation(fields: [adminId], references: [id])
+  adminId Int
 }
 
 model Table {
   id Int @default(autoincrement()) @id
+  publicId String @unique @default(uuid(7))
   number Int
   seats Int
   restaurant Restaurant @relation(fields: [restaurantId], references: [id])
@@ -44,6 +48,7 @@ enum Period {
 
 model ServiceSlot {
   id Int @default(autoincrement()) @id
+  publicId String @unique @default(uuid(7))
   date DateTime
   period Period
   openingTime DateTime @db.Time
@@ -64,19 +69,24 @@ enum Status {
 
 model Reservation {
   id Int @default(autoincrement()) @id
+  publicId String @unique @default(uuid(7))
   diner Diner @relation(fields: [dinerId], references: [id])
   dinerId Int
   serviceSlot ServiceSlot @relation(fields: [serviceSlotId], references: [id])
   serviceSlotId Int
   pax Int
   status Status
+  @@unique([dinerId, serviceSlotId])
 }
 
 model Diner {
   id Int @default(autoincrement()) @id
+  publicId String @unique @default(uuid(7))
   email String @unique
   phone String @unique
+  passwordHash String? // null = guest account, present = registered user
   firstName String
   lastName String
   reservations Reservation[]
+  restaurants Restaurant[]
 }

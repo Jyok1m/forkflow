@@ -1,6 +1,6 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, ID, InputType } from '@nestjs/graphql';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 @InputType()
 export class CreateRestaurantInput {
@@ -39,4 +39,9 @@ export class CreateRestaurantInput {
   @IsString()
   @IsNotEmpty()
   country!: string;
+
+  // The diner (with an account) that administrates this restaurant
+  @Field(() => ID)
+  @IsUUID()
+  adminPublicId!: string;
 }

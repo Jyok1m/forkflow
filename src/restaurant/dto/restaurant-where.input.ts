@@ -1,12 +1,12 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { Field, ID, InputType } from '@nestjs/graphql';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 @InputType()
 export class RestaurantWhereInput {
-  @Field(() => Int, { nullable: true })
+  @Field(() => ID, { nullable: true })
   @IsOptional()
-  @IsInt()
-  id?: number;
+  @IsUUID()
+  publicId?: string;
 
   @Field({ nullable: true })
   @IsOptional()

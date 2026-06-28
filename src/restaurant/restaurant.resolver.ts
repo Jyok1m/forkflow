@@ -1,6 +1,6 @@
 import {
   Args,
-  Int,
+  ID,
   Mutation,
   Parent,
   Query,
@@ -41,14 +41,14 @@ export class RestaurantResolver {
   // Only one (find first or throw)
   @Query(() => Restaurant)
   async restaurant(
-    @Args('id', { type: () => Int, nullable: true }) id?: number,
+    @Args('publicId', { type: () => ID, nullable: true }) publicId?: string,
     @Args('name', { type: () => String, nullable: true }) name?: string,
   ) {
-    if (!id && !name) {
-      throw new BadRequestException('Provide either id or name');
+    if (!publicId && !name) {
+      throw new BadRequestException('Provide either publicId or name');
     }
 
-    return this.restaurantService.findOne(id ? { id } : { name });
+    return this.restaurantService.findOne(publicId ? { publicId } : { name });
   }
 
   // All

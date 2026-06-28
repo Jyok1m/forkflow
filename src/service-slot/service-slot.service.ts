@@ -1,31 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ServiceSlot, Prisma } from '../generated/prisma/client';
+import { ServiceSlotInput } from './dto/service-slot.input';
 
 @Injectable()
 export class ServiceSlotService {
   constructor(private prisma: PrismaService) {}
 
-  // Get all from DB
-  async findAll(): Promise<ServiceSlot[]> {
-    return this.prisma.serviceSlot.findMany();
+  /* ---------------------------------------------------------------- */
+  /*                              Creates                             */
+  /* ---------------------------------------------------------------- */
+
+  async create(data: ServiceSlotInput) {
+    return this.prisma.serviceSlot.create({ data });
   }
 
-  // Get all from a query
-  async findAllByQuery(
-    input: Prisma.ServiceSlotWhereInput,
-  ): Promise<ServiceSlot[]> {
-    return this.prisma.serviceSlot.findMany({
-      where: input,
-    });
-  }
+  /* ---------------------------------------------------------------- */
+  /*                               Reads                              */
+  /* ---------------------------------------------------------------- */
 
-  // Get single
   async findOne(
-    input: Prisma.ServiceSlotWhereUniqueInput,
+    where: Prisma.ServiceSlotWhereUniqueInput,
   ): Promise<ServiceSlot> {
-    return this.prisma.serviceSlot.findUniqueOrThrow({
-      where: input,
-    });
+    return this.prisma.serviceSlot.findUniqueOrThrow({ where });
+  }
+
+  async findMany(where?: Prisma.ServiceSlotWhereInput): Promise<ServiceSlot[]> {
+    return this.prisma.serviceSlot.findMany({ where });
   }
 }

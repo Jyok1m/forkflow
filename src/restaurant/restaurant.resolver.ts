@@ -12,7 +12,7 @@ import { RestaurantService } from './restaurant.service';
 import { ServiceSlot } from '../service-slot/service-slot.model';
 import { Table } from '../table/table.model';
 import { CreateRestaurantInput } from './dto/create-restaurant.input';
-import type { RestaurantWhereInput } from '../generated/prisma/models';
+import { RestaurantWhereInput } from './dto/restaurant-where.input';
 import { BadRequestException } from '@nestjs/common';
 import { TablesByRestaurantLoader } from './loaders/tables-by-restaurant.loader';
 import { ServiceSlotsByRestaurantLoader } from './loaders/service-slots-by-restaurant.loader';

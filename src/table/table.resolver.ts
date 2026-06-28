@@ -3,7 +3,7 @@ import { TableService } from './table.service';
 import { Table } from './table.model';
 import { CreateTableInput } from './dto/create-table.input';
 import { BadRequestException } from '@nestjs/common';
-import type { TableWhereInput } from '../generated/prisma/models';
+import { TableWhereInput } from './dto/table-where.input';
 
 @Resolver(() => Table)
 export class TableResolver {

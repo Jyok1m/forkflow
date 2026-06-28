@@ -1,11 +1,10 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { DinerResolver } from './diner.resolver';
 import { DinerService } from './diner.service';
-import { ReservationModule } from '../reservation/reservation.module';
+import { ReservationsByDinerLoader } from './loaders/reservations-by-diner.loader';
 
 @Module({
-  imports: [forwardRef(() => ReservationModule)],
-  providers: [DinerResolver, DinerService],
+  providers: [DinerResolver, DinerService, ReservationsByDinerLoader],
   exports: [DinerService],
 })
 export class DinerModule {}

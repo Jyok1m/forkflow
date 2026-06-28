@@ -7,27 +7,23 @@ import { CreateDinerInput } from './dto/create-diner.input';
 export class DinerService {
   constructor(private prisma: PrismaService) {}
 
-  // Create
+  /* ---------------------------------------------------------------- */
+  /*                              Creates                             */
+  /* ---------------------------------------------------------------- */
+
   async create(data: CreateDinerInput) {
     return this.prisma.diner.create({ data });
   }
 
-  // Get all diners from DB
-  async findAll(): Promise<Diner[]> {
-    return this.prisma.diner.findMany();
+  /* ---------------------------------------------------------------- */
+  /*                               Reads                              */
+  /* ---------------------------------------------------------------- */
+
+  async findOne(where: Prisma.DinerWhereInput): Promise<Diner> {
+    return this.prisma.diner.findFirstOrThrow({ where });
   }
 
-  // Get all diners from a query
-  async findAllByQuery(input: Prisma.DinerWhereInput): Promise<Diner[]> {
-    return this.prisma.diner.findMany({
-      where: input,
-    });
-  }
-
-  // Get single diner
-  async findOne(input: Prisma.DinerWhereUniqueInput): Promise<Diner> {
-    return this.prisma.diner.findUniqueOrThrow({
-      where: input,
-    });
+  async findMany(where?: Prisma.DinerWhereInput): Promise<Diner[]> {
+    return this.prisma.diner.findMany({ where });
   }
 }

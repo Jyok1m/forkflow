@@ -3,57 +3,61 @@ import {
   Query,
   Args,
   Int,
-  Parent,
-  ResolveField,
   Mutation,
+  ResolveField,
+  Parent,
 } from '@nestjs/graphql';
 import { DinerService } from './diner.service';
 import { Diner } from './diner.model';
-import { Reservation } from '../reservation/reservation.model';
-import { ReservationService } from '../reservation/reservation.service';
-import { Status } from '../generated/prisma/enums';
 import { BadRequestException } from '@nestjs/common';
 import { CreateDinerInput } from './dto/create-diner.input';
+import type { DinerWhereInput } from '../generated/prisma/models';
+import { ReservationsByDinerLoader } from './loaders/reservations-by-diner.loader';
+import { Reservation } from '../reservation/reservation.model';
 
 @Resolver(() => Diner)
 export class DinerResolver {
   constructor(
-    private svc: DinerService,
-    private reservationSvc: ReservationService,
+    private dinerService: DinerService,
+    private reservationsByDiner: ReservationsByDinerLoader,
   ) {}
 
-  // Create new diner
+  /* ---------------------------------------------------------------- */
+  /*                              Creates                             */
+  /* ---------------------------------------------------------------- */
+
   @Mutation(() => Diner)
   async createDiner(@Args('data') data: CreateDinerInput) {
-    return this.svc.create(data);
+    return this.dinerService.create(data);
   }
 
-  @Query(() => [Diner])
-  async diners() {
-    return this.svc.findAll();
-  }
+  /* ---------------------------------------------------------------- */
+  /*                               Reads                              */
+  /* ---------------------------------------------------------------- */
 
-  // Query 2 in 1 for diner fetching by id and email
-  @Query(() => Diner, { nullable: true })
+  @Query(() => Diner)
   async diner(
     @Args('id', { type: () => Int, nullable: true }) id?: number,
-    @Args('email', { type: () => String, nullable: true }) email?: string,
+    @Args('email', { nullable: true }) email?: string,
   ) {
     if (!id && !email) {
       throw new BadRequestException('Provide either id or email');
     }
-    return this.svc.findOne(id ? { id } : { email });
+    return this.dinerService.findOne(id ? { id } : { email });
   }
 
+  @Query(() => [Diner])
+  async diners(@Args('where', { nullable: true }) where?: DinerWhereInput) {
+    return this.dinerService.findMany(where);
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*                          Resolve fields                          */
+  /* ---------------------------------------------------------------- */
+
   @ResolveField('reservations', () => [Reservation])
-  async reservations(
-    @Parent() diner: Diner,
-    @Args('status', { type: () => String, nullable: true })
-    status?: Status,
-  ) {
-    return this.reservationSvc.findAllByQuery({
-      dinerId: diner.id,
-      ...(status ? { status } : {}),
-    });
+  async reservations(@Parent() diner: Diner) {
+    const { id } = diner;
+    return this.reservationsByDiner.loader.load(id);
   }
 }

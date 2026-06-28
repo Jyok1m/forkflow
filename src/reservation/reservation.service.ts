@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Diner, Reservation } from '../generated/prisma/client';
+import { Reservation } from '../generated/prisma/client';
 import { Prisma } from '../generated/prisma/client';
 import { CreateReservationInput } from './dto/create-reservervation.input';
 

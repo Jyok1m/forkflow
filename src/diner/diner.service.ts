@@ -5,6 +5,7 @@ import { CreateDinerInput } from './dto/create-diner.input';
 import * as argon2 from 'argon2';
 import { LoginDinerInput } from './dto/login-diner.input';
 import { JwtService } from '@nestjs/jwt';
+import { SignUpDinerInput } from './dto/sign-up-diner.input';
 
 @Injectable()
 export class DinerService {
@@ -40,7 +41,24 @@ export class DinerService {
     return this.prisma.diner.findMany({ where });
   }
 
-  async login(data: LoginDinerInput) {
+  async signUp(data: SignUpDinerInput) {
+    const { diner, password } = data;
+
+    const newDiner = await this.prisma.diner.create({
+      data: {
+        ...diner,
+        passwordHash: await argon2.hash(password),
+      },
+    });
+
+    // Token
+    const payload = { sub: newDiner.id, email: newDiner.email };
+    const accessToken = await this.jwt.signAsync(payload);
+
+    return { accessToken, diner: newDiner };
+  }
+
+  async signIn(data: LoginDinerInput) {
     const { email, password } = data;
 
     // Vérif email

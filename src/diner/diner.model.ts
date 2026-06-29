@@ -3,6 +3,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 @ObjectType()
 export class Diner {
   id!: number; // internal PK, not exposed (used by loaders)
+  passwordHash!: string;
   @Field(() => ID) publicId!: string;
   @Field() email!: string;
   @Field() phone!: string;

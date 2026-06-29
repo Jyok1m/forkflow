@@ -14,6 +14,7 @@ import { CreateDinerInput } from './dto/create-diner.input';
 import { DinerWhereInput } from './dto/diner-where.input';
 import { ReservationsByDinerLoader } from './loaders/reservations-by-diner.loader';
 import { Reservation } from '../reservation/reservation.model';
+import { LoginDinerInput } from './dto/login-diner.input';
 
 @Resolver(() => Diner)
 export class DinerResolver {
@@ -58,5 +59,14 @@ export class DinerResolver {
   async reservations(@Parent() diner: Diner) {
     const { id } = diner;
     return this.reservationsByDiner.loader.load(id);
+  }
+
+  /* ---------------------------------------------------------------- */
+  /*                              Account                             */
+  /* ---------------------------------------------------------------- */
+
+  @Mutation(() => Diner)
+  async login(@Args('data') data: LoginDinerInput) {
+    return this.dinerService.signIn(data);
   }
 }

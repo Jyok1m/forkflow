@@ -9,18 +9,81 @@ const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
 });
 
-faker.seed(42); // mêmes données à chaque run (retire pour du pur aléatoire)
+faker.seed(42); // mêmes données à chaque run (sauf les dates, désormais relatives à aujourd'hui)
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 const time = (h: number, m = 0) => new Date(Date.UTC(1970, 0, 1, h, m));
 const randInt = (min: number, max: number) => faker.number.int({ min, max });
 const pick = <T>(arr: T[]): T => faker.helpers.arrayElement(arr);
 
+// 14 jours À PARTIR DE DEMAIN (toujours dans le futur, peu importe la date du run)
 const serviceDates = Array.from({ length: 14 }, (_, i) => {
-  const d = new Date(Date.UTC(2026, 5, 24));
-  d.setUTCDate(d.getUTCDate() + i);
+  const d = new Date();
+  d.setUTCHours(0, 0, 0, 0);
+  d.setUTCDate(d.getUTCDate() + i + 1); // +1 = à partir de demain ; mets +i pour inclure aujourd'hui
   return d;
 });
+
+// ─── Pool d'images de bannière (restaurants / food) ──────────────────
+const BANNER_IDS = [
+  '1517248135467-4c7edcad34c4', // salle de resto
+  '1414235077428-338989a2e8c0', // resto cosy
+  '1551632436-cbf8dd35adfa', // intérieur lumineux
+  '1559339352-11d035aa65de', // bar / comptoir
+  '1466978913421-dad2ebd01d17', // table dressée
+  '1552566626-52f8b828add9', // brasserie
+  '1424847651672-bf20a4b0982b', // terrasse
+  '1564844536308-5b2a3b4e8c0f', // plat gastro
+  '1517919008402-25a5f6e94e9f', // ambiance tamisée
+  '1555396273-367ea4eb4db5', // cuisine ouverte
+  '1565299624946-b28f40a0ae38', // pizza / food
+  '1504674900247-0877df9cc836', // assiette
+  '1540189549336-e6e99c3679fe', // healthy bowl
+  '1466637574441-749b8f19452f', // marché / frais
+];
+
+// Teste une fois quelles images du pool répondent (200), pour ne jamais assigner une URL morte
+async function buildLiveBannerPool(): Promise<string[]> {
+  const live = await Promise.all(
+    BANNER_IDS.map(async (id) => {
+      try {
+        const res = await fetch(
+          `https://images.unsplash.com/photo-${id}?w=100`,
+          { method: 'HEAD', signal: AbortSignal.timeout(3000) },
+        );
+        return res.ok ? id : null;
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return live.filter((id): id is string => id !== null);
+}
+
+// URL de bannière : pool resto si dispo, sinon fallback Picsum (déterministe par resto)
+function makeBannerUrl(i: number, livePool: string[]): string {
+  if (livePool.length > 0) {
+    const id = livePool[i % livePool.length];
+    return `https://images.unsplash.com/photo-${id}?w=1200&h=400&fit=crop&q=80&sig=${i}`;
+  }
+  return `https://picsum.photos/seed/forkflow-${i}/1200/400`;
+}
+
+const RESTAURANT_STYLES = [
+  'Chinese',
+  'French',
+  'British',
+  'Italian',
+  'American',
+  'Greek',
+  'Spanish',
+  'Brazilian',
+  'Japanese',
+  'Korean',
+  'Moroccan',
+  'Tunisian',
+  'Algerian',
+];
 
 async function main() {
   await prisma.reservation.deleteMany();
@@ -29,13 +92,12 @@ async function main() {
   await prisma.restaurant.deleteMany();
   await prisma.diner.deleteMany();
 
-  const RESTAURANT_COUNT = 300;
-  const DINER_COUNT = 2000;
+  const RESTAURANT_COUNT = 100;
+  const DINER_COUNT = 1000;
 
   const testHash = await argon2.hash('password123');
 
   // ─── Admins (diners avec compte, gérant les restaurants) ───────────
-  // un admin par restaurant (ou un pool partagé si un admin gère plusieurs)
   const admins = await Promise.all(
     Array.from({ length: RESTAURANT_COUNT }, () => {
       const firstName = faker.person.firstName();
@@ -52,6 +114,14 @@ async function main() {
     }),
   );
   console.log(`✅ ${admins.length} admins créés`);
+
+  // ─── Pool d'images : calculé UNE SEULE FOIS, avant la boucle ───────
+  const livePool = await buildLiveBannerPool();
+  console.log(
+    `✅ ${livePool.length}/${BANNER_IDS.length} bannières valides${
+      livePool.length === 0 ? ' → fallback Picsum' : ''
+    }`,
+  );
 
   // ─── Restaurants (tables + créneaux + admin) ───────────────────────
   for (let i = 0; i < RESTAURANT_COUNT; i++) {
@@ -98,6 +168,8 @@ async function main() {
         admin: { connect: { id: admins[i].id } }, // un admin distinct par resto
         tables: { create: tables },
         serviceSlots: { create: serviceSlots },
+        bannerUrl: makeBannerUrl(i, livePool),
+        style: pick(RESTAURANT_STYLES),
       },
     });
   }

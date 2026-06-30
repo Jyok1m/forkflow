@@ -1,6 +1,12 @@
 import { Field, ID, InputType } from '@nestjs/graphql';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  IsUUID,
+} from 'class-validator';
 
 @InputType()
 export class CreateRestaurantInput {
@@ -39,6 +45,18 @@ export class CreateRestaurantInput {
   @IsString()
   @IsNotEmpty()
   country!: string;
+
+  @Field()
+  @Transform(({ value }: { value?: string }) => value?.trim())
+  @IsString()
+  @IsNotEmpty()
+  bannerUrl!: string;
+
+  @Field()
+  @Transform(({ value }: { value?: string }) => value?.trim())
+  @IsString()
+  @IsNotEmpty()
+  style!: string;
 
   // The diner (with an account) that administrates this restaurant
   @Field(() => ID)

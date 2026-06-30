@@ -10,4 +10,6 @@ export class Restaurant {
   @Field() city!: string;
   @Field() postCode!: string;
   @Field() country!: string;
+  @Field() bannerUrl!: string;
+  @Field() style!: string;
 }

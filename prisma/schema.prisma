@@ -22,6 +22,8 @@ model Restaurant {
   city String
   postCode String
   country String
+  bannerUrl String
+  style String @default("")
   tables Table[]
   serviceSlots ServiceSlot[]
   admin Diner @relation(fields: [adminId], references: [id])
